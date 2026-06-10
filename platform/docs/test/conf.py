@@ -17,7 +17,8 @@ extensions = [
 ]
 
 
-html_baseurl = "https://docs.forlinx.net/forlinx-docs-internal-test/"
+# 📢 必须严格补上真实的 /platform/ 层级！
+html_baseurl = "https://docs.forlinx.net/forlinx-docs-internal-test/platform/"
 
 
 templates_path = ['_templates']
