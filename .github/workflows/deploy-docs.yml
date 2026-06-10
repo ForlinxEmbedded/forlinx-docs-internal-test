@@ -57,10 +57,6 @@ jobs:
           echo "EOF" >> "$GITHUB_ENV"
         fi
 
-
-        
-
-
     # 5️⃣ 处理变化的 Markdown 文件（抓取图片 + 路径修改）
     - name: Process changed Markdown files
       shell: bash
@@ -83,7 +79,7 @@ jobs:
             fi
           done <<< "$CHANGED_MD_FILES"
 
-    # 6️⃣ 提交并推送更新
+    # 6️⃣ 提交并推送更新（把下载的图片和修改后的 md 存回主分支）
     - name: Commit and push changes
       shell: bash
       run: |
@@ -99,16 +95,13 @@ jobs:
             echo "No changes to commit."
           fi
           
-
-
-        
-    # 8 构建 homepage（必选）
+    # 7️⃣ 构建 homepage（必选）
     - name: Build homepage
       run: |
         mkdir -p docs_build
         sphinx-build -b html ./homepage ./docs_build
 
-    # 9 构建 platform 子项目
+    # 8️⃣ 构建 platform 子项目
     - name: Build platform docs
       run: |
         for project in platform/*/*; do
@@ -122,47 +115,17 @@ jobs:
           fi
         done
 
-
-    # 10 清理 /en/
-    - name: Remove /en/ from sitemap URLs
-      run: |
-        for sm in docs_build/*/*/sitemap.xml; do
-          if [ -f "$sm" ]; then
-            echo "Cleaning $sm ..."
-            sed -i 's#/en/#/#g' "$sm"
-          fi
-        done
-
-
-
-    # 11 生成总 sitemap_index.xml
-    - name: Generate sitemap_index.xml
-      run: |
-        echo '<?xml version="1.0" encoding="UTF-8"?>' > docs_build/sitemap_index.xml
-        echo '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> docs_build/sitemap_index.xml
-
-        # 遍历所有子项目的 sitemap.xml
-        for sm in docs_build/*/*/sitemap.xml; do
-          if [ -f "$sm" ]; then
-            relpath=${sm#docs_build/}
-            echo "  <sitemap>" >> docs_build/sitemap_index.xml
-            echo "    <loc>https://hellotangle.github.io/forlinx-docs-HT/$relpath</loc>" >> docs_build/sitemap_index.xml
-            echo "  </sitemap>" >> docs_build/sitemap_index.xml
-          fi
-        done
-
-        echo '</sitemapindex>' >> docs_build/sitemap_index.xml
-
-
-    # 11.5 添加 robots.txt 到部署根目录
+    # 9️⃣ 添加 robots.txt 到部署根目录
     - name: Add robots.txt
       run: |
-        cp homepage/_static/robots.txt docs_build/robots.txt
-        echo "✅ robots.txt added to deployment root"
+        if [ -f "homepage/_static/robots.txt" ]; then
+          cp homepage/_static/robots.txt docs_build/robots.txt
+          echo "✅ robots.txt added to deployment root"
+        else
+          echo "🔹 No robots.txt found, skipping."
+        fi
         
-
-
-    # 12 部署到 GitHub Pages
+    # 🔟 部署到 GitHub Pages（发布到新仓库的 gh-pages 分支）
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
