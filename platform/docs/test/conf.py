@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Forlinx Embedded RK3588 Documentation'
+project = 'Forlinx Embedded Docs'
 author = 'Forlinx Embedded'
 copyright = 'Forlinx Embedded'
 # -- General configuration ---------------------------------------------------
@@ -17,7 +17,7 @@ extensions = [
 ]
 
 
-# 📢 必须严格补上真实的 /platform/ 层级！
+
 html_baseurl = "https://docs.forlinx.net/forlinx-docs-internal-test/platform/"
 
 
