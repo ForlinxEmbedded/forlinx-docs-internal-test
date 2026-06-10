@@ -43,6 +43,7 @@ html_theme_options = {
 
 html_css_files = [
     'theme-switcher.css',
+    'custom.css',
 ]
 
 html_sidebars = {
