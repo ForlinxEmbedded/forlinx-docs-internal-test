@@ -15,7 +15,9 @@ extensions = [
     'myst_parser',         # 支持 Markdown
 
 ]
-# html_baseurl = "https://forlinxembedded.github.io/rockchip/ok3588-c/"
+
+
+html_baseurl = "https://docs.forlinx.net/forlinx-docs-internal-test/"
 
 
 templates_path = ['_templates']
