@@ -1,0 +1,1 @@
+platform/nxp/ls-development-manual/04_Linux.md
