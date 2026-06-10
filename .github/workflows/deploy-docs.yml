@@ -94,14 +94,29 @@ jobs:
           else
             echo "No changes to commit."
           fi
+
+    # 7️⃣ 【双重注入 1/2】在 Sphinx 编译前，强行在所有子项目源目录下创建 _static 并把公共资源塞进去
+    - name: Pre-inject common static files
+      run: |
+        if [ -d "common_static" ]; then
+          for project in platform/*/*; do
+            if [ -d "$project" ]; then
+              mkdir -p "$project/_static"
+              cp -rf common_static/* "$project/_static/"
+              echo "✅ 已同步静态资源至源目录: $project/_static/"
+            fi
+          done
+        else
+          echo "⚠️ 未找到 common_static 文件夹"
+        fi
           
-    # 7️⃣ 构建 homepage（必选）
+    # 8️⃣ 构建 homepage（必选）
     - name: Build homepage
       run: |
         mkdir -p docs_build
         sphinx-build -b html ./homepage ./docs_build
 
-    # 8️⃣ 构建 platform 子项目
+    # 9️⃣ 构建 platform 子项目并在编译完成后实施二次暴力拷贝兜底
     - name: Build platform docs
       run: |
         for project in platform/*/*; do
@@ -111,19 +126,18 @@ jobs:
             platform_name=$(basename "$project")
             outdir="docs_build/$project_name/$platform_name"
             mkdir -p "$outdir"
+            
+            # 1. 运行编译
             sphinx-build -b html "$project" "$outdir"
+            
+            # 2. 【双重注入 2/2】编译完后，不管 Sphinx 怎么过滤，直接用 Linux 强行覆盖打包出的输出目录
+            mkdir -p "$outdir/_static"
+            if [ -d "common_static" ]; then
+              cp -rf common_static/* "$outdir/_static/"
+              echo "🚀 编译后二次物理注入成功: $outdir/_static/"
+            fi
           fi
         done
-
-    # 9️⃣ 添加 robots.txt 到部署根目录
-    - name: Add robots.txt
-      run: |
-        if [ -f "homepage/_static/robots.txt" ]; then
-          cp homepage/_static/robots.txt docs_build/robots.txt
-          echo "✅ robots.txt added to deployment root"
-        else
-          echo "🔹 No robots.txt found, skipping."
-        fi
         
     # 🔟 部署到 GitHub Pages（发布到新仓库的 gh-pages 分支）
     - name: Deploy to GitHub Pages
